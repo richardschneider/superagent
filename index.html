@@ -41,7 +41,15 @@
    .end(function(err, res){
 
    });
-</code></pre><p>  <strong>DELETE</strong>, <strong>HEAD</strong>, <strong>POST</strong>, <strong>PUT</strong> and other <strong>HTTP</strong> verbs may also be used, simply change the method name:</p>
+</code></pre><p> The <strong>node</strong> client supports making requests to <a href="http://en.wikipedia.org/wiki/Unix_domain_socket">Unix Domain Sockets</a>:</p>
+<pre><code> // pattern: https?+unix://SOCKET_PATH/REQUEST_PATH
+ //          Use `%2F` as `/` in SOCKET_PATH
+ request
+   .get(&#39;http+unix://%2Fabsolute%2Fpath%2Fto%2Funix.sock/search&#39;)
+   .end(function(err, res){
+
+   });
+</code></pre><p>  <strong>DELETE</strong>, <strong>HEAD</strong>, <strong>PATCH</strong>, <strong>POST</strong>, and <strong>PUT</strong> requests can also be used, simply change the method name:</p>
 <pre><code>request
   .head(&#39;/favicon.ico&#39;)
   .end(function(err, res){
@@ -191,6 +199,20 @@ Content-Type: text/plain
 Tobi
 --whoop--
 </code></pre><p>  You would have the values <code>res.body.name</code> provided as &quot;Tobi&quot;, and <code>res.files.image</code> as a <code>File</code> object containing the path on disk, filename, and other properties.</p>
+<h3 id="binary">Binary</h3>
+<p>In browsers, you may use <code>.responseType(&#39;blob&#39;)</code> to request handling of binary response bodies. This API is unnecessary when running in node.js. The supported argument values for this method are</p>
+<ul>
+<li><code>&#39;blob&#39;</code> passed through to the XmlHTTPRequest <code>responseType</code> property</li>
+<li><code>&#39;arraybuffer&#39;</code> passed through to the XmlHTTPRequest <code>responseType</code> property</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">req.get(&#39;/&#39;)
+  .responseType(&#39;blob&#39;)
+  .end(function (error, res) {
+    // res.body will be a browser native Blob type here
+  });
+</code></pre>
+<p>For more information, see the Mozilla Developer Network <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType">xhr.responseType docs</a>.</p>
 <h2 id="response-properties">Response properties</h2>
 <p>  Many helpful flags and properties are set on the <code>Response</code> object, ranging from the response text, parsed response body, header fields, status flags and more.</p>
 <h3 id="response-text">Response text</h3>
@@ -300,8 +322,8 @@ req.pipe(stream);
   .get(&#39;http://localhost:4001/&#39;)
   .withCredentials()
   .end(function(err, res){
-    assert(200 == res.status);
-    assert(&#39;tobi&#39; == res.text);
+    assert.equal(200, res.status);
+    assert.equal(&#39;tobi&#39;, res.text);
     next();
   })
 </code></pre><h2 id="error-handling">Error handling</h2>

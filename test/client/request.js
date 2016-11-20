@@ -2,16 +2,16 @@ var assert = require('assert');
 var request = require('../../');
 
 describe('request', function() {
-  this.timeout(10000);
+  this.timeout(20000);
 
 it('request() error object', function(next) {
   request('GET', '/error').end(function(err, res) {
     assert(err);
     assert(res.error, 'response should be an error');
-    assert(res.error.message == 'cannot GET /error (500)');
-    assert(res.error.status == 500);
-    assert(res.error.method == 'GET');
-    assert(res.error.url == '/error');
+    assert.equal(res.error.message, 'cannot GET /error (500)');
+    assert.equal(res.error.status, 500);
+    assert.equal(res.error.method, 'GET');
+    assert.equal(res.error.url, '/error');
     next();
   });
 });
@@ -22,7 +22,7 @@ var isIE9OrOlder = !window.atob;
 if (!isIE9OrOlder && !isIE11) { // Don't run on IE9 or older, or IE11
   it('patch()', function(next){
     request.patch('/user/12').end(function(err, res){
-      assert('updated' == res.text);
+      assert.equal('updated', res.text);
       next();
     });
   });
@@ -41,7 +41,7 @@ it('POST native FormData', function(next){
     .post('/echo')
     .send(data)
     .end(function(err, res){
-      assert('multipart/form-data' == res.type);
+      assert.equal('multipart/form-data', res.type);
       next();
     });
 });
@@ -64,7 +64,7 @@ it('defaults attached files to original file names', function(next){
     .attach('image', file)
     .end(function(err, res){
       var regx = new RegExp('filename="' + file.name + '"');
-      assert(res.text.match(regx) !== null);
+      assert.notEqual(res.text.match(regx), null);
       next();
     });
 });
@@ -129,6 +129,15 @@ it('GET blob object', function(next){
     });
 });
 
+it('Reject node-only function', function(){
+  assert.throws(function(){
+    request.get().write();
+  });
+  assert.throws(function(){
+    request.get().pipe();
+  });
+});
+
 window.btoa = window.btoa || null;
 it('basic auth', function(next){
   window.btoa = window.btoa || require('Base64').btoa;
@@ -137,8 +146,8 @@ it('basic auth', function(next){
   .post('/auth')
   .auth('foo', 'bar')
   .end(function(err, res){
-    assert('foo' == res.body.user);
-    assert('bar' == res.body.pass);
+    assert.equal('foo', res.body.user);
+    assert.equal('bar', res.body.pass);
     next();
   });
 });
@@ -150,8 +159,8 @@ it('auth type "basic"', function(next){
   .post('/auth')
   .auth('foo', 'bar', {type: 'basic'})
   .end(function(err, res){
-    assert('foo' == res.body.user);
-    assert('bar' == res.body.pass);
+    assert.equal('foo', res.body.user);
+    assert.equal('bar', res.body.pass);
     next();
   });
 });
@@ -163,8 +172,8 @@ it('auth type "auto"', function(next){
   .post('/auth')
   .auth('foo', 'bar', {type: 'auto'})
   .end(function(err, res){
-    assert('foo' == res.body.user);
-    assert('bar' == res.body.pass);
+    assert.equal('foo', res.body.user);
+    assert.equal('bar', res.body.pass);
     next();
   });
 });
@@ -177,7 +186,7 @@ it('progress event listener on xhr object registered when some on the request', 
   .end();
 
   if (req.xhr.upload) { // Only run assertion on capable browsers
-    assert(null !== req.xhr.upload.onprogress);
+    assert.notEqual(null, req.xhr.upload.onprogress);
   }
 });
 
@@ -187,7 +196,7 @@ it('no progress event listener on xhr object when none registered on request', f
   .end();
 
   if (req.xhr.upload) { // Only run assertion on capable browsers
-    assert(null === req.xhr.upload.onprogress);
+    assert.strictEqual(null, req.xhr.upload.onprogress);
   }
 });
 
@@ -199,7 +208,7 @@ it('Request#parse overrides body parser no matter Content-Type', function(done){
     return JSON.stringify(data);
   }
 
-  var req = request
+  request
   .post('/user')
   .serialize(testParser)
   .type('json')
@@ -228,6 +237,18 @@ if ('FormData' in window) {
       next();
     })
     .end();
+  });
+  it('get error status code and rawResponse on file download', function(next) {
+    request
+    .get('/arraybuffer-unauthorized')
+    .responseType('arraybuffer') 
+    .end(function(err, res) {
+      assert(err.statusCode, 401);
+      assert(err.rawResponse instanceof ArrayBuffer);
+      var decodedString = String.fromCharCode.apply(null, new Uint8Array(err.rawResponse));
+      assert(decodedString, '{"message":"Authorization has been denied for this request."}');
+      next();
+    });
   });
 }
 

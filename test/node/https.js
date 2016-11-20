@@ -1,16 +1,16 @@
 
-var EventEmitter = require('events').EventEmitter
-  , request = require('../..')
-  , express = require('express')
-  , assert = require('better-assert')
-  , app = express()
-  , url = require('url')
-  , https = require('https')
-  , fs = require('fs')
-  , ca = fs.readFileSync(__dirname + '/fixtures/ca.cert.pem')
-  , key = fs.readFileSync(__dirname + '/fixtures/key.pem')
-  , cert = fs.readFileSync(__dirname + '/fixtures/cert.pem')
-  , server;
+var request = require('../..'),
+    express = require('express'),
+    assert = require('assert'),
+    app = express(),
+    url = require('url'),
+    https = require('https'),
+    fs = require('fs'),
+    ca = fs.readFileSync(__dirname + '/fixtures/ca.cert.pem'),
+    key = fs.readFileSync(__dirname + '/fixtures/key.pem'),
+    pfx = fs.readFileSync(__dirname + '/fixtures/cert.pfx'),
+    cert = fs.readFileSync(__dirname + '/fixtures/cert.pem'),
+    server;
 
 
 
@@ -51,7 +51,7 @@ describe('https', function(){
         .ca(ca)
         .end(function(err, res){
           assert(res.ok);
-          assert('Safe and secure!' === res.text);
+          assert.strictEqual('Safe and secure!', res.text);
           done();
         })
       })
@@ -64,12 +64,12 @@ describe('https', function(){
         .get(testEndpoint)
         .end(function(err, res){
           assert(res.ok);
-          assert('Safe and secure!' === res.text);
+          assert.strictEqual('Safe and secure!', res.text);
           agent
           .get(url.parse(testEndpoint))
           .end(function(err, res){
             assert(res.ok);
-            assert('Safe and secure!' === res.text);
+            assert.strictEqual('Safe and secure!', res.text);
             done();
           })
         })
@@ -106,7 +106,17 @@ describe('https', function(){
         .cert(cert)
         .end(function(err, res){
           assert(res.ok);
-          assert('Safe and secure!' === res.text);
+          assert.strictEqual('Safe and secure!', res.text);
+          done();
+        })
+      })
+      it('should give a good response with client pfx', function(done){
+        request
+        .get(testEndpoint)
+        .pfx(pfx)
+        .end(function(err, res){
+          assert(res.ok);
+          assert.strictEqual('Safe and secure!', res.text);
           done();
         })
       })
@@ -119,12 +129,28 @@ describe('https', function(){
         .get(testEndpoint)
         .end(function(err, res){
           assert(res.ok);
-          assert('Safe and secure!' === res.text);
+          assert.strictEqual('Safe and secure!', res.text);
           agent
           .get(url.parse(testEndpoint))
           .end(function(err, res){
             assert(res.ok);
-            assert('Safe and secure!' === res.text);
+            assert.strictEqual('Safe and secure!', res.text);
+            done();
+          })
+        })
+      })
+      it('should be able to make multiple requests without redefining pfx', function(done){
+        var agent = request.agent({pfx: pfx});
+        agent
+        .get(testEndpoint)
+        .end(function(err, res){
+          assert(res.ok);
+          assert.strictEqual('Safe and secure!', res.text);
+          agent
+          .get(url.parse(testEndpoint))
+          .end(function(err, res){
+            assert(res.ok);
+            assert.strictEqual('Safe and secure!', res.text);
             done();
           })
         })

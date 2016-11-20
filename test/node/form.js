@@ -1,8 +1,8 @@
 
-var request = require('../../')
-  , express = require('express')
-  , assert = require('better-assert')
-  , app = express();
+var request = require('../../'),
+    assert = require('assert'),
+    express = require('express'),
+    app = express();
 
 app.post('/echo', function(req, res){
   res.writeHead(200, req.headers);
@@ -20,6 +20,17 @@ before(function listen(done) {
   server = app.listen(0, function listening() {
     base += ':' + server.address().port;
     done();
+  });
+});
+
+describe('Merging objects', function(){
+  it('Don\'t mix Buffer and JSON', function(){
+    assert.throws(function(){
+      request
+        .post('/echo')
+        .send(new Buffer("Change this to Buffer.from in April 2017"))
+        .send({allowed:false})
+    });
   });
 });
 

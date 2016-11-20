@@ -2,7 +2,7 @@ var assert = require('assert');
 var request = require('../../');
 
 describe('xdomain', function(){
-  this.timeout(10000);
+  this.timeout(20000);
 
   // TODO (defunctzombie) I am not certain this actually forces xdomain request
   // use localtunnel.me and tunnel127.com alias instead
@@ -11,8 +11,8 @@ describe('xdomain', function(){
     .get('//' + window.location.host + '/xdomain')
     .withCredentials()
     .end(function(err, res){
-      assert(200 == res.status);
-      assert('tobi' == res.text);
+      assert.equal(200, res.status);
+      assert.equal('tobi', res.text);
       next();
     });
   });

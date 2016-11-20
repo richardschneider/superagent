@@ -46,7 +46,17 @@ ES6 promises are supported. Instead of `.end()` you can call `.then()`:
 
        });
 
-  __DELETE__, __HEAD__, __POST__, __PUT__ and other __HTTP__ verbs may also be used, simply change the method name:
+ The __node__ client supports making requests to [Unix Domain Sockets](http://en.wikipedia.org/wiki/Unix_domain_socket):
+
+     // pattern: https?+unix://SOCKET_PATH/REQUEST_PATH
+     //          Use `%2F` as `/` in SOCKET_PATH
+     request
+       .get('http+unix://%2Fabsolute%2Fpath%2Fto%2Funix.sock/search')
+       .end(function(err, res){
+
+       });
+
+  __DELETE__, __HEAD__, __PATCH__, __POST__, and __PUT__ requests can also be used, simply change the method name:
 
     request
       .head('/favicon.ico')
@@ -430,8 +440,8 @@ For more information, see the Mozilla Developer Network [xhr.responseType docs](
       .get('http://localhost:4001/')
       .withCredentials()
       .end(function(err, res){
-        assert(200 == res.status);
-        assert('tobi' == res.text);
+        assert.equal(200, res.status);
+        assert.equal('tobi', res.text);
         next();
       })
 
