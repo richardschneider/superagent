@@ -39,7 +39,7 @@
     "Base64": "^1.0.0",
     "basic-auth-connect": "^1.0.0",
     "body-parser": "^1.15.0",
-    "browserify": "^13.0.0",
+    "browserify": "^14.0.0",
     "cookie-parser": "^1.4.1",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
