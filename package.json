@@ -38,7 +38,7 @@
   "devDependencies": {
     "Base64": "^1.0.0",
     "basic-auth-connect": "^1.0.0",
-    "body-parser": "^1.15.0",
+    "body-parser": "^1.19.0",
     "browserify": "^13.0.0",
     "cookie-parser": "^1.4.1",
     "express": "^4.13.4",
